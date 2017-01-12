@@ -11,7 +11,7 @@ pub use self::proximity_internal::proximity_internal as proximity;
 #[doc(inline)]
 pub use self::distance_internal::distance;
 #[doc(inline)]
-pub use self::time_of_impact_internal::time_of_impact;
+pub use self::time_of_impact_internal::{time_of_impact, time_of_impact_with_normal};
 #[doc(inline)]
 pub use self::ray_internal::{Ray, Ray2, Ray3,
                              RayIntersection, RayIntersection2, RayIntersection3,

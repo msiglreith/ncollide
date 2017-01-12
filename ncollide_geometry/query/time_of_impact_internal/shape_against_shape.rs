@@ -37,3 +37,26 @@ pub fn shape_against_shape<P, M>(m1: &M, vel1: &P::Vector, g1: &Shape<P, M>,
         panic!("No algorithm known to compute a contact point between the given pair of shapes.")
     }
 }
+
+/// Computes the smallest time of impact of two shapes under translational movement.
+///
+/// Returns `0.0` if the objects are touching or penetrating.
+pub fn shape_against_shape_with_normal<P, M>(m1: &M, vel1: &P::Vect, g1: &Shape<P, M>,
+                             m2: &M, vel2: &P::Vect, g2: &Shape<P, M>)
+                             -> Option<(<P::Vect as Vector>::Scalar, P::Vect)>
+    where P: Point,
+          P::Vect: Translate<P>,
+          M: Isometry<P> {
+    if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
+        time_of_impact_internal::support_map_against_support_map_with_normal(m1, vel1, s1, m2, vel2, s2)
+    }
+    else if let Some(c1) = g1.as_composite_shape() {
+        time_of_impact_internal::composite_shape_against_shape_with_normal(m1, vel1, c1, m2, vel2, g2)
+    }
+    else if let Some(c2) = g2.as_composite_shape() {
+        time_of_impact_internal::shape_against_composite_shape_with_normal(m1, vel1, g1, m2, vel2, c2)
+    }
+    else {
+        panic!("No algorithm known to compute a contact point between the given pair of shapes.")
+    }
+}
