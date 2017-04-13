@@ -2,6 +2,7 @@ use na;
 use math::Point;
 
 /// Description of the projection of a point on a shape.
+#[derive(Debug)]
 pub struct PointProjection<P: Point> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
@@ -74,3 +75,33 @@ pub trait RichPointQuery<P: Point, M> {
     fn project_point_with_extra_info(&self, m: &M, pt: &P, solid: bool)
         -> (PointProjection<P>, Self::ExtraInfo);
 }
+
+/// Description of the projection of a point on a shape.
+#[derive(Debug)]
+pub struct PointNormalProjection<P: Point> {
+    /// Whether or not the point to project was inside of the shape.
+    pub is_inside: bool,
+    /// The projection result.
+    pub point: P,
+    /// Normal at the projected point.
+    pub normal: P::Vect,
+}
+
+impl<P: Point> PointNormalProjection<P> {
+    /// Initializes a new `PointNormalProjection`.
+    pub fn new(is_inside: bool, point: P, normal: P::Vect) -> PointNormalProjection<P> {
+        PointNormalProjection {
+            is_inside: is_inside,
+            point: point,
+            normal: normal,
+        }
+    }
+}
+
+/// Trait of objects that can be tested for point inclusion and projection (including normal).
+pub trait PointNormalQuery<P: Point, M> {
+     /// Projects a point on `self` transformed by `m`.
+    #[inline]
+    fn project_point_with_normal(&self, m: &M, pt: &P, solid: bool) -> PointNormalProjection<P>;
+}
+

@@ -1,11 +1,10 @@
 use alga::general::Id;
 use na;
-use query::{PointQuery, PointProjection, RichPointQuery};
+use query::{PointQuery, PointNormalQuery, PointProjection, PointNormalProjection, RichPointQuery};
 use shape::{BaseMesh, BaseMeshElement, Segment, TriMesh, Polyline};
 use bounding_volume::AABB;
 use partitioning::{BVTCostFn, BVTVisitor};
 use math::{Point, Isometry};
-
 
 impl<P, M, I, E> PointQuery<P, M> for BaseMesh<P, I, E>
     where P: Point,
@@ -49,6 +48,21 @@ impl<P, M, I, E> RichPointQuery<P, M> for BaseMesh<P, I, E>
     }
 }
 
+impl<P, M, I, E> PointNormalQuery<P, M> for BaseMesh<P, I, E>
+    where P: Point,
+          M: Transform<P>,
+          E: BaseMeshElement<I, P> + PointNormalQuery<P, Identity> {
+    #[inline]
+    fn project_point_with_normal(&self, m: &M, point: &P, _: bool) -> PointNormalProjection<P> {
+        let ls_pt = m.inverse_transform(point);
+        let mut cost_fn = BaseMeshPointNormalProjCostFn { mesh: self, point: &ls_pt };
+
+        let mut proj = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        proj.point = m.transform(&proj.point);
+
+        proj
+    }
+}
 
 /*
  * Costs function.
@@ -80,6 +94,32 @@ impl<'a, P, I, E> BVTCostFn<P::Real, usize, AABB<P>> for BaseMeshPointProjCostFn
         };
 
         Some((na::distance(self.point, &proj.point), (proj, extra_info)))
+    }
+}
+
+/*
+ * Costs function.
+ */
+struct BaseMeshPointNormalProjCostFn<'a, P: 'a + Point, I: 'a, E: 'a> {
+    mesh:  &'a BaseMesh<P, I, E>,
+    point: &'a P
+}
+
+impl<'a, P, I, E> BVTCostFn<<P::Vect as Vector>::Scalar, usize, AABB<P>> for BaseMeshPointNormalProjCostFn<'a, P, I, E>
+    where P: Point,
+          E: BaseMeshElement<I, P> + PointNormalQuery<P, Identity> {
+    type UserData = PointNormalProjection<P>;
+
+    #[inline]
+    fn compute_bv_cost(&mut self, aabb: &AABB<P>) -> Option<<P::Vect as Vector>::Scalar> {
+        Some(aabb.distance_to_point(&Identity::new(), self.point, true))
+    }
+
+    #[inline]
+    fn compute_b_cost(&mut self, b: &usize) -> Option<(<P::Vect as Vector>::Scalar, PointNormalProjection<P>)> {
+        let proj = self.mesh.element_at(*b).project_point_with_normal(&Identity::new(), self.point, true);
+
+        Some((na::distance(self.point, &proj.point), proj))
     }
 }
 
@@ -176,5 +216,14 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Polyline<P> {
         -> (PointProjection<P>, Self::ExtraInfo)
     {
         self.base_mesh().project_point_with_extra_info(m, point, solid)
+    }
+}
+
+impl<N, M> PointNormalQuery<Point2<N>, M> for Polyline<Point2<N>>
+    where N: Scalar,
+          M: Transform<Point2<N>> {
+    #[inline]
+    fn project_point_with_normal(&self, m: &M, point: &Point2<N>, solid: bool) -> PointNormalProjection<Point2<N>> {
+        self.base_mesh().project_point_with_normal(m, point, solid)
     }
 }

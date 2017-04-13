@@ -9,7 +9,7 @@ use na;
 use shape::{CompositeShape, SupportMap};
 // Queries.
 use bounding_volume::{AABB, BoundingSphere};
-use query::{RayCast, PointQuery};
+use query::{RayCast, PointQuery, PointNormalQuery};
 use math::Point;
 
 /// Trait implemented by all shapes supported by ncollide.
@@ -37,6 +37,12 @@ pub trait Shape<P: Point, M> : Send + Sync + Any + GetTypeId {
     /// The `PointQuery` implementation of `self`.
     #[inline]
     fn as_point_query(&self) -> Option<&PointQuery<P, M>> {
+        None
+    }
+
+    /// The `PointNormalQuery` implementation of `self`.
+    #[inline]
+    fn as_point_normal_query(&self) -> Option<&PointNormalQuery<P, M>> {
         None
     }
 

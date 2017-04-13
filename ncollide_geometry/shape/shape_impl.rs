@@ -1,5 +1,5 @@
 use bounding_volume::{self, AABB, BoundingSphere};
-use query::{PointQuery, RayCast};
+use query::{PointQuery, PointNormalQuery, RayCast};
 use shape::{Shape, Triangle, Segment, Ball, Plane, Capsule, Cuboid, Cylinder, Cone, ConvexHull, Compound,
             TriMesh, Polyline, CompositeShape, SupportMap};
 use math::{Point, Isometry};
@@ -51,6 +51,15 @@ macro_rules! impl_shape_common(
 
         #[inline]
         fn as_point_query(&self) -> Option<&PointQuery<P, M>> {
+            Some(self)
+        }
+    }
+);
+
+macro_rules! impl_point_normal_query(
+    () => {
+        #[inline]
+        fn as_point_normal_query(&self) -> Option<&PointNormalQuery<P, M>> {
             Some(self)
         }
     }

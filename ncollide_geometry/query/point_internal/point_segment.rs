@@ -1,7 +1,8 @@
 use na;
 use shape::Segment;
-use query::{PointQuery, PointProjection, RichPointQuery};
-use math::{Point, Isometry};
+use query::{PointQuery, PointProjection, RichPointQuery, PointNormalQuery, PointNormalProjection};
+use math::{Point, Isometry, Scalar};
+use na::{normalize, Point2, Vector2};
 
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
@@ -53,5 +54,51 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Segment<P> {
         let inside = relative_eq!(proj, *pt);
 
         (PointProjection::new(inside, proj), position_on_segment)
+    }
+}
+
+// TODO: reduce code duplication
+impl<N, M> PointNormalQuery<Point2<N>, M> for Segment<Point2<N>>
+    where N: Scalar,
+          M: Transform<Point2<N>> {
+    #[inline]
+    fn project_point_with_normal(&self, m: &M, pt: &Point2<N>, solid: bool) -> PointNormalProjection<Point2<N>> {
+        let ls_pt = m.inverse_transform(pt);
+        let ab    = *self.b() - *self.a();
+        let ap    = ls_pt - *self.a();
+        let bp    = ls_pt - *self.b();
+        let ab_ap = na::dot(&ab, &ap);
+        let sqnab = na::norm_squared(&ab);
+        let cross = ab.x * ap.y - ab.x * ap.x;
+
+        let proj;
+        let normal;
+
+        println!("ap: {:?} bp: {:?}", &ap, &bp);
+
+        if ab_ap <= na::zero() {
+            // Voronoï region of vertex 'a'.
+            proj = m.transform(self.a());
+            normal = normalize(&ap);
+        }
+        else if ab_ap >= sqnab {
+            // Voronoï region of vertex 'b'.
+            proj = m.transform(self.b());
+            normal = normalize(&bp);
+        }
+        else {
+            assert!(sqnab != na::zero());
+
+            // Voronoï region of the segment interior.
+            proj = m.transform(&(*self.a() + ab * (ab_ap / sqnab)));
+            normal = normalize(&Vector2::new(ab.y, -ab.x));
+        }
+
+        // println!("{:?}", normal);
+
+        // FIXME: is this acceptable?
+        let inside = na::approx_eq(&proj, pt);
+
+        PointNormalProjection::new(inside, proj, normal)
     }
 }

@@ -1,5 +1,6 @@
 //! 2d line strip, 3d segment mesh, and nd subsimplex mesh.
 
+use std::fmt;
 use std::mem;
 use std::sync::Arc;
 
@@ -12,6 +13,12 @@ use math::{Point, Isometry};
 /// Shape commonly known as a 2d line strip or a 3d segment mesh.
 pub struct Polyline<P: Point> {
     mesh: BaseMesh<P, Point2<usize>, Segment<P>>
+}
+
+impl<P: Point> fmt::Debug for Polyline<P> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Polyline")
+    }
 }
 
 impl<P: Point> Clone for Polyline<P> {
