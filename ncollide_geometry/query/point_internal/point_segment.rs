@@ -73,9 +73,7 @@ impl<N, M> PointNormalQuery<Point2<N>, M> for Segment<Point2<N>>
 
         let proj;
         let normal;
-
-        println!("ap: {:?} bp: {:?}", &ap, &bp);
-
+        
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
             proj = m.transform(self.a());
