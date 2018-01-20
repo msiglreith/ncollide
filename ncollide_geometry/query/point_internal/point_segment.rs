@@ -1,8 +1,9 @@
 use na;
 use shape::Segment;
 use query::{PointQuery, PointProjection, RichPointQuery, PointNormalQuery, PointNormalProjection};
-use math::{Point, Isometry, Scalar};
+use math::{Point, Isometry};
 use na::{normalize, Point2, Vector2};
+use alga::general::Real;
 
 
 impl<P: Point, M: Isometry<P>> PointQuery<P, M> for Segment<P> {
@@ -59,11 +60,11 @@ impl<P: Point, M: Isometry<P>> RichPointQuery<P, M> for Segment<P> {
 
 // TODO: reduce code duplication
 impl<N, M> PointNormalQuery<Point2<N>, M> for Segment<Point2<N>>
-    where N: Scalar,
-          M: Transform<Point2<N>> {
+    where N: Real,
+          M: Isometry<Point2<N>> {
     #[inline]
     fn project_point_with_normal(&self, m: &M, pt: &Point2<N>, solid: bool) -> PointNormalProjection<Point2<N>> {
-        let ls_pt = m.inverse_transform(pt);
+        let ls_pt = m.inverse_transform_point(pt);
         let ab    = *self.b() - *self.a();
         let ap    = ls_pt - *self.a();
         let bp    = ls_pt - *self.b();
@@ -73,29 +74,27 @@ impl<N, M> PointNormalQuery<Point2<N>, M> for Segment<Point2<N>>
 
         let proj;
         let normal;
-        
+
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
-            proj = m.transform(self.a());
+            proj = m.transform_point(self.a());
             normal = normalize(&ap);
         }
         else if ab_ap >= sqnab {
             // Voronoï region of vertex 'b'.
-            proj = m.transform(self.b());
+            proj = m.transform_point(self.b());
             normal = normalize(&bp);
         }
         else {
             assert!(sqnab != na::zero());
 
             // Voronoï region of the segment interior.
-            proj = m.transform(&(*self.a() + ab * (ab_ap / sqnab)));
+            proj = m.transform_point(&(*self.a() + ab * (ab_ap / sqnab)));
             normal = normalize(&Vector2::new(ab.y, -ab.x));
         }
 
-        // println!("{:?}", normal);
-
         // FIXME: is this acceptable?
-        let inside = na::approx_eq(&proj, pt);
+        let inside = relative_eq!(&proj, pt);
 
         PointNormalProjection::new(inside, proj, normal)
     }

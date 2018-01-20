@@ -84,12 +84,12 @@ pub struct PointNormalProjection<P: Point> {
     /// The projection result.
     pub point: P,
     /// Normal at the projected point.
-    pub normal: P::Vect,
+    pub normal: P::Vector,
 }
 
 impl<P: Point> PointNormalProjection<P> {
     /// Initializes a new `PointNormalProjection`.
-    pub fn new(is_inside: bool, point: P, normal: P::Vect) -> PointNormalProjection<P> {
+    pub fn new(is_inside: bool, point: P, normal: P::Vector) -> PointNormalProjection<P> {
         PointNormalProjection {
             is_inside: is_inside,
             point: point,

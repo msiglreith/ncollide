@@ -30,7 +30,7 @@ impl<P, M> PointQuery<P, M> for Shape<P, M>
 
 impl<P, M> PointNormalQuery<P, M> for Shape<P, M>
     where P: Point,
-          M: Isometry<P> + Translation<P::Vect> {
+          M: Isometry<P> {
     #[inline]
     fn project_point_with_normal(&self, m: &M, pt: &P, solid: bool) -> PointNormalProjection<P> {
         self.as_point_normal_query()

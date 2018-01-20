@@ -3,6 +3,7 @@ use query::{PointQuery, PointNormalQuery, RayCast};
 use shape::{Shape, Triangle, Segment, Ball, Plane, Capsule, Cuboid, Cylinder, Cone, ConvexHull, Compound,
             TriMesh, Polyline, CompositeShape, SupportMap};
 use math::{Point, Isometry};
+use alga::linear::Translation;
 
 macro_rules! impl_as_support_map(
     () => {
@@ -82,7 +83,7 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for Ball<P::Real> {
 
 impl<P, M> Shape<P, M> for Capsule<P::Real>
     where P: Point,
-          M: Isometry<P> + Translation<P::Vector> {
+          M: Isometry<P> {
     impl_shape_common!();
     impl_as_support_map!();
 }
