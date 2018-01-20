@@ -17,6 +17,7 @@ pub fn aabb<P, M, G: ?Sized>(g: &G, m: &M) -> AABB<P>
 
 /// An Axis Aligned Bounding Box.
 #[derive(Debug, PartialEq, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Serialize, Deserialize)]
 pub struct AABB<P> {
     mins: P,
     maxs: P
@@ -149,38 +150,38 @@ impl<P: Point> BoundingVolume<P> for AABB<P> {
 //     fn translation(&self) -> P::Vector {
 //         na::center(&self.mins, &self.maxs).to_vector()
 //     }
-// 
+//
 //     #[inline]
 //     fn inverse_translation(&self) -> P::Vector {
 //         -self.translation()
 //     }
-// 
+//
 //     #[inline]
 //     fn append_translation_mut(&mut self, dv: &P::Vector) {
 //         self.mins = self.mins + *dv;
 //         self.maxs = self.maxs + *dv;
 //     }
-// 
+//
 //     #[inline]
 //     fn append_translation(&self, dv: &P::Vector) -> AABB<P> {
 //         AABB::new(self.mins + *dv, self.maxs + *dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn prepend_translation_mut(&mut self, dv: &P::Vector) {
 //         self.append_translation_mut(dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn prepend_translation(&self, dv: &P::Vector) -> AABB<P> {
 //         self.append_translation(dv)
 //     }
-// 
+//
 //     #[inline]
 //     fn set_translation(&mut self, v: P::Vector) {
 //         let center = self.translation();
 //         let total_translation = center + v;
-// 
+//
 //         self.mins = na::inverse_translate(&total_translation, &self.mins);
 //         self.maxs = na::inverse_translate(&total_translation, &self.maxs);
 //     }

@@ -6,6 +6,7 @@ use math::{Point, Isometry};
 
 
 /// A triangle shape.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Triangle<P> {
     a: P,

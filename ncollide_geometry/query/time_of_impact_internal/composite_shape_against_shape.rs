@@ -1,5 +1,4 @@
 use alga::general::Id;
-use alga::linear::Translation;
 use na;
 use math::{Point, Isometry};
 use bounding_volume::AABB;
@@ -101,7 +100,6 @@ pub fn composite_shape_against_shape_with_normal<P, M, G1: ?Sized>(m1: &M, vel1:
                                                        m2: &M, vel2: &P::Vector, g2: &Shape<P, M>)
                                                        -> Option<(P::Real, P::Vector)>
     where P:  Point,
-		  P::Vector: Translation<P>,
           M:  Isometry<P>,
           G1: CompositeShape<P, M> {
     let mut cost_fn = CompositeShapeAgainstAnyTOINormalCostFn::new(m1, vel1, g1, m2, vel2, g2);
@@ -114,7 +112,6 @@ pub fn shape_against_composite_shape_with_normal<P, M, G2: ?Sized>(m1: &M, vel1:
                                                        m2: &M, vel2: &P::Vector, g2: &G2)
                                                        -> Option<(P::Real, P::Vector)>
     where P:  Point,
-          P::Vector: Translation<P>,
           M:  Isometry<P>,
           G2: CompositeShape<P, M> {
     composite_shape_against_shape_with_normal(m2, vel2, g2, m1, vel1, g1).map(|(toi, normal)| (toi, -normal))
@@ -159,7 +156,6 @@ impl<'a, P, M, G1: ?Sized> CompositeShapeAgainstAnyTOINormalCostFn<'a, P, M, G1>
 impl<'a, P, M, G1: ?Sized> BVTCostFn<P::Real, usize, AABB<P>>
 for CompositeShapeAgainstAnyTOINormalCostFn<'a, P, M, G1>
     where P:  Point,
-          P::Vector: Translation<P>,
           M:  Isometry<P>,
           G1: CompositeShape<P, M> {
     type UserData = (P::Real, P::Vector);

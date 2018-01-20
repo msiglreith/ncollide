@@ -45,7 +45,6 @@ pub fn shape_against_shape_with_normal<P, M>(m1: &M, vel1: &P::Vector, g1: &Shap
                              m2: &M, vel2: &P::Vector, g2: &Shape<P, M>)
                              -> Option<(P::Real, P::Vector)>
     where P: Point,
-          P::Vector: Translation<P>,
           M: Isometry<P> {
     if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
         time_of_impact_internal::support_map_against_support_map_with_normal(m1, vel1, s1, m2, vel2, s2)

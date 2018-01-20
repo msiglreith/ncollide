@@ -17,6 +17,9 @@ extern crate alga;
 extern crate nalgebra as na;
 extern crate ncollide_math as math;
 extern crate ncollide_utils as utils;
+#[cfg(feature = "serde")]
+#[macro_use]
+extern crate serde;
 
 pub mod shape;
 pub mod bounding_volume;

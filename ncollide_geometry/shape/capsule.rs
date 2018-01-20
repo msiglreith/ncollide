@@ -9,6 +9,7 @@ use shape::SupportMap;
 use math::{Point, Isometry};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone, RustcEncodable, RustcDecodable)]
 pub struct Capsule<N> {
     half_height: N,
