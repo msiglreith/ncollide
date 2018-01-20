@@ -118,9 +118,13 @@ impl<P: Point, M: Isometry<P>> Shape<P, M> for TriMesh<P> {
     impl_as_composite_shape!();
 }
 
-impl<P: Point, M: Isometry<P>> Shape<P, M> for Polyline<P> {
+impl<P: Point, M: Isometry<P>> Shape<P, M> for Polyline<P>
+where
+    Self: PointNormalQuery<P, M>, // We only implement it for Point2 atm.
+{
     impl_shape_common!();
     impl_as_composite_shape!();
+    impl_point_normal_query!();
 }
 
 impl<P: Point, M: Isometry<P>> Shape<P, M> for Plane<P::Vector> {
